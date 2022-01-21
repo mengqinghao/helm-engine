@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: helm-engine
+  name: helm-engine
+  namespace: uca-paas-eams
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helm-engine
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: helm-engine
+    spec:
+      serviceAccountName: helm-engine
+      containers:
+        - image: <image>
+          imagePullPolicy: IfNotPresent
+          name: helm-engine
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          ports:
+            - name: helm-engine
+              containerPort: 8080
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
